@@ -1,0 +1,263 @@
+alias: NFC Movie Library
+description: ""
+triggers:
+  - entity_id:
+      - sensor.nfc_movie_sist_skannad_nfc_tag
+    enabled: true
+    trigger: state
+  - tag_id: 04-8C-2E-BA-6F-61-80
+    trigger: tag
+  - tag_id: 04-47-DA-B5-6F-61-80
+    trigger: tag
+  - tag_id: 04-E3-8B-B8-6F-61-80
+    trigger: tag
+# etc....
+  - trigger: tag
+    tag_id: 04-F5-79-CB-5F-61-80
+conditions:
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ sensor.nfc_movie_sist_skannad_nfc_tag in nfc_mapping }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.tag_id in nfc_mapping }}"
+actions:
+  - if:
+      - alias: Wait # Throws an audioble and visual error if any tag is scanned within 15s 
+        value_template: |-
+          {% set lt = this.attributes.last_triggered %}
+                        {{ lt is not none and (now() - lt).total_seconds() <= 15 }}
+    then:
+      - action: media_player.play_media
+        metadata: {}
+        target:
+          entity_id: media_player.beam
+        data:
+          media:
+            media_content_id: media-source://media_source/local/Alert 3.mp3
+            media_content_type: audio/mpeg
+            metadata:
+              title: Alert 3.mp3
+              thumbnail: null
+              media_class: music
+              children_media_class: null
+              navigateIds:
+                - {}
+                - media_content_type: app
+                  media_content_id: media-source://media_source
+              browse_entity_id: media_player.beam
+          announce: true
+      - action: notify.lg_webos_tv_65qned85t6c_beufljp
+        metadata: {}
+        data:
+          message: ⏳ Vänta lite innan du skannar igen
+      - stop: Lugna ned dig :(
+  - action: media_player.media_stop
+    metadata: {}
+    target:
+      entity_id: media_player.vardagsrum
+    data: {}
+  - action: saver.save_state
+    metadata: {}
+    data:
+      entity_id:
+        - light.tvbank
+  - data:
+      volume_level: 0.6
+    target:
+      entity_id:
+        - media_player.beam
+    action: media_player.volume_set
+  - action: media_player.play_media
+    metadata: {}
+    target:
+      entity_id: media_player.beam
+    data:
+      media:
+        media_content_id: >-
+          media-source://media_source/local/miraclei-sample_confirm_success04_kofi_by_miraclei-360152.mp3
+        media_content_type: audio/mpeg
+        metadata:
+          title: miraclei-sample_confirm_success04_kofi_by_miraclei-360152.mp3
+          thumbnail: null
+          media_class: music
+          children_media_class: null
+          navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+          browse_entity_id: media_player.beam
+      announce: true
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.tvbank
+    data:
+      flash: short
+  - action: saver.restore_state
+    metadata: {}
+    data:
+      entity_id:
+        - light.tvbank
+  - data:
+      volume_level: 0.17
+    target:
+      entity_id:
+        - media_player.beam
+    action: media_player.volume_set
+  - alias: Starta TV om den är avstängd
+    if:
+      - condition: device
+        device_id: 797c8f023f5e5984578c0d6d1f51a255
+        domain: media_player
+        entity_id: 3bdbde0cd4360e5fe17797e2f0d08798
+        type: is_off
+    then:
+      - action: media_player.turn_on
+        data: {}
+        target:
+          device_id: 797c8f023f5e5984578c0d6d1f51a255
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 20
+          milliseconds: 0
+      - action: media_player.select_source
+        metadata: {}
+        target:
+          device_id: 797c8f023f5e5984578c0d6d1f51a255
+        data:
+          source: Plex
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - wait_template: "{{ not is_state('media_player.plex_atv_vardagsrum','unavailable') }}"
+        continue_on_timeout: true
+        timeout: "20"
+        enabled: false
+  - action: notify.lg_webos_tv_65qned85t6c_beufljp
+    metadata: {}
+    data:
+      message: 🍿 Spelar upp {{ nfc_mapping[trigger.event.data.tag_id].name }}
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: |
+              {{ trigger.event.data.tag_id in nfc_mapping
+                 and 'plex_id' in nfc_mapping[trigger.event.data.tag_id] }}
+        sequence:
+          - action: rest_command.plex_mark_watched
+            metadata: {}
+            data:
+              rating_key: "{{ nfc_mapping[trigger.event.data.tag_id].plex_id }}"
+              token:
+                "[object Object]": null
+          - alias: Spela upp via Plex
+            data:
+              media:
+                media_content_id: >-
+                  plex://play/?metadataKey=%2Flibrary%2Fmetadata%2F{{nfc_mapping[trigger.event.data.tag_id].plex_id}}&metadataType=1&server=xxxxxxxxxxxx&resume=0
+                media_content_type: url
+                metadata: {}
+            target:
+              device_id: 797c8f023f5e5984578c0d6d1f51a255
+            action: media_player.play_media
+        alias: Plex ID
+      - conditions:
+          - condition: template
+            value_template: |
+              {{ trigger.event.data.tag_id in nfc_mapping
+                 and 'playlist_id' in nfc_mapping[trigger.event.data.tag_id] }}
+        sequence:
+          - alias: Hämta första objektet i collection
+            variables:
+              plex_token: xxxxxxxxxxxx
+              server_id: xxxxxxxxxxxxxx
+              playlist_id: "{{ nfc_mapping[trigger.event.data.tag_id].playlist_id }}"
+              xml_url: >-
+                http://192.168.10.92:32400/library/collections/{{ playlist_id
+                }}/children?X-Plex-Token={{ plex_token }}
+          - alias: Läs XML från Plex
+            action: rest_command.make_call
+            data:
+              url: "{{ xml_url }}"
+            response_variable: plexxml
+          - alias: Extrahera ratingKey för första objektet
+            variables:
+              xml: "{{ plexxml.content | string }}"
+              rating_key: >-
+                {{ xml | regex_findall_index('ratingKey="(\d+)"', 0) |
+                default('', true) }}
+          - alias: Bygg uppspelnings-URL
+            variables:
+              url: >-
+                plex://play/?metadataKey=%2Flibrary%2Fmetadata%2F{{ rating_key
+                }}&metadataType=1&server={{ server_id }}&resume=0
+          - action: rest_command.plex_mark_watched
+            data:
+              rating_key:
+                "[object Object]": null
+              token:
+                "[object Object]": null
+          - alias: Spela upp via Plex
+            if:
+              - condition: template
+                value_template: "{{ rating_key | default(none) is not none }}"
+            then:
+              - action: media_player.play_media
+                target:
+                  device_id: 797c8f023f5e5984578c0d6d1f51a255
+                data:
+                  media:
+                    media_content_id: "{{ url }}"
+                    media_content_type: url
+                    metadata: {}
+                enabled: true
+            else:
+              - alias: Logga fel om ingen rating_key hittades
+                action: system_log.write
+                data:
+                  level: warning
+                  message: >-
+                    Plex: Hittade ingen ratingKey i XML-svaret för
+                    playlist_id={{ playlist_id }}
+        alias: Playlist ID
+    default:
+      - data:
+          media:
+            media_content_id: "{{ nfc_mapping[trigger.event.data.tag_id].deeplinkurl }}"
+            media_content_type: url
+            metadata: {}
+        target:
+          device_id: 797c8f023f5e5984578c0d6d1f51a255
+        action: media_player.play_media
+        alias: Spela upp via Deeplink
+  - data:
+      name: NFC Movie
+      message: "{{ item.name }} startades via NFC"
+      entity_id: media_player.vardagsrum
+    action: logbook.log
+variables:
+  nfc_mapping:
+    04-47-DA-B5-6F-61-80:
+      name: Pinnemanns Äventyr
+      plex_id: 35671
+    04-E3-8B-B8-6F-61-80:
+      name: Bluey
+      playlist_id: 35764
+    04-83-45-BA-6F-61-80:
+      name: Råttatouile
+      deeplinkurl: https://www.disneyplus.com/play/ab7c4e29-04f1-46dd-931a-d43be1ce0f8c
+    04-B4-52-B9-6F-61-80:
+      name: Pettson & Findus
+      playlist_id: 35771
+  # etc.... 
+    B6-FD-1A-06:
+      name: TV4 Nyhetsmorgon
+      deeplinkurl: tv4play://details/67ff22880e988cd4d149?autoplay=true
+    04-5C-C8-CB-5F-61-81:
+      name: Bolibompadraken & Känslorna
+      plex_id: 35685
+mode: single
