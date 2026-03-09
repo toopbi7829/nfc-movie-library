@@ -71,11 +71,25 @@ Important notes:
 
 Sometimes the Plex app on Apple TV would freeze when starting playback.  
 To fix this, the script first sends a **stop command** to the media player before starting a new item.
+```YAML
+  - action: media_player.media_stop
+    metadata: {}
+    target:
+      entity_id: media_player.vardagsrum
+```
 
 ## Force playback from the beginning
 
 Plex normally resumes playback.  
 To avoid this, the script marks the item as **watched before playback starts**, ensuring it always begins from the start.
+```YAML
+action: rest_command.plex_mark_watched
+metadata: {}
+data:
+  rating_key: "{{ nfc_mapping[trigger.event.data.tag_id].plex_id }}"
+  token:
+    "[object Object]": null
+```
 
 ## Disable intro and credits detection (recommended for kids content)
 
@@ -93,7 +107,7 @@ Disable this in Plex:
 
 # Plex Collections
 
-To make content easy to trigger, this setup uses **Smart Collections** in Plex.
+To make content easy to trigger, this setup uses **Smart Collections** in Plex. Xafke covered this in his guide: https://simplyexplained.com/blog/how-i-built-an-nfc-movie-library-for-my-kids/ 
 
 When an NFC tag is scanned:
 
@@ -121,7 +135,7 @@ Examples:
 - Bluey
 - Disney Movies
 
-The NFC tag UID is mapped to a **Home Assistant automation or script**.
+The NFC tag UID is mapped in the **Home Assistant automation**.
 
 ---
 
@@ -140,7 +154,8 @@ The goal of this project was to:
 
 Huge credit to:
 
-**u/Xafke** for the original idea and inspiration.
+[u/Xafke](https://www.reddit.com/user/Xafke/)  for the original idea and inspiration. 
+Here is the post that I used: https://simplyexplained.com/blog/how-i-built-an-nfc-movie-library-for-my-kids/ 
 
 ---
 
