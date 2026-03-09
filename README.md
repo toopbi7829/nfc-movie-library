@@ -41,7 +41,7 @@ When a tag is scanned:
 
 # Hardware
 
-All components were purchased from **AliExpress** and the total cost was under **100 SEK** about 10 USD or EUR.
+All components were purchased from **AliExpress** and the total cost was about **100 SEK** (~ 10 USD or EUR).
 
 Required hardware:
 
