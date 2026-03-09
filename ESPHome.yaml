@@ -1,0 +1,46 @@
+esphome:
+  name: nfc-movie
+  friendly_name: "NFC Movie Scanner"
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  domain: .home.internal
+
+  ap:
+    ssid: "NFC-Movie Fallback"
+    password: "huasd6782!"
+
+api:
+  encryption:
+    key: "xxxxxxxxxxxxxxxxxxx"
+
+ota:
+  - platform: esphome
+    password: "xxxxxxxxxxxxxxxxxx"
+
+captive_portal:
+
+i2c:
+  sda: GPIO7
+  scl: GPIO4
+  scan: true
+  #id: bus_a
+  
+pn532_i2c:
+  update_interval: 1s
+  on_tag:
+    then:
+ #     - rtttl.stop:
+      - homeassistant.tag_scanned: !lambda 'return x;'
+
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true   
